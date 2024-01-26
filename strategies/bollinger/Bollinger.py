@@ -223,13 +223,6 @@ class Strategy:
                     # Update statistics
                     update_stats(trade['profit'])
 
-                elif np.isnan(trade['tp']):
-                    if self.op[self.index] >= self.sma[self.index] and self.op[self.index] > self.close[self.index]:
-                        trade['close_idx'] = self.index
-                        trade['tp'] = self.close[self.index - 1]
-                        trade['profit'] = trade['risk'] * (self.op[self.index] - self.entry_price)
-                        update_stats(trade['profit'])
-
                 # Check if the trade has reached its take profit
                 elif self.high[self.index] >= trade['tp']:
                     trade['close_idx'] = self.index
@@ -248,13 +241,6 @@ class Strategy:
 
                     # Update statistics
                     update_stats(trade['profit'])
-
-                elif np.isnan(trade['tp']):
-                    if self.op[self.index] <= self.sma[self.index] and self.op[self.index] < self.close[self.index]:
-                        trade['close_idx'] = self.index
-                        trade['tp'] = self.close[self.index - 1]
-                        trade['profit'] = trade['risk'] * (self.entry_price - self.op[self.index])
-                        update_stats(trade['profit'])
 
                 # If it hit the take profit
                 elif self.low[self.index] <= trade['tp']:
@@ -293,7 +279,7 @@ class Strategy:
         green_rebound = break_below_red and self.get_data(self.op) > self.get_data(self.close)
 
         if green_rebound:
-            self.buy(1, self.get_data(self.low))
+            self.buy(1, sl=self.get_data(self.low), rrr=1)
 
     def clear_data(self):
         """
@@ -393,6 +379,7 @@ def backtest(data):
     statistics, trades, return_y = s.run()
 
     print(statistics)
+    print(trades[:]['profit'])
 
     plot(op_prices, high_prices, low_prices, close_prices, trades, s.lower, s.sma, s.upper, return_y)
 
